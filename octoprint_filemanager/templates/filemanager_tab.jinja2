@@ -73,8 +73,9 @@
 </div>
 
 <div class="table-container">
-    <div class="table-container-header">
-        <table class="table">
+
+    <div class="table-container-body">
+        <table class="table table-hover">
             <thead>
                 <tr class="header">
                     <!-- ko if: $root.settings.settings.plugins.filemanager.enableCheckboxes -->
@@ -82,17 +83,13 @@
                     <!-- /ko -->
                     <th class="title">{{ _('Name') }}</th>
                     <th class="uploaded">{{ _('Uploaded') }}</th>
+                    <th class="printed">{{ _('Printed') }}</th>
                     <th class="size">{{ _('Size') }}</th>
                 </tr>
-            </thead>
-        </table>
-    </div>
-
-    <div class="table-container-body">
-        <table class="table table-hover">
+            </thead>        
             <tbody>
                 <!-- ko if: currentPath() != "" -->
-                <tr><td data-bind="click: $root.navigateUp"><i class="icon-arrow-left"></i> {{  _('Back') }}</td></tr>
+                <tr><td  colspan="4" data-bind="click: $root.navigateUp"><i class="icon-arrow-left"></i> {{  _('Back') }}</td></tr>
                 <!-- /ko -->
 
                 <!-- ko foreach: $root.filesAndFolders -->
@@ -113,7 +110,8 @@
         <div><div data-bind="marquee: { class: 'marquee-hover' }"><!-- ko text: display --><!-- /ko --></div></div>
         <div><div class="internal" data-bind="visible: name != display, marquee: { class: 'marquee-hover' }">{{ _('Internal') }}: <span data-bind="text: name" /></div></div>
     </td>
-    <td class="uploaded" data-bind="text: formatTimeAgo(date)"></td>
+    <td class="uploaded" data-bind="attr: { title: $root.getTimeString(date) }, text: moment.unix(date).format('YYYY/MM/DD hh:mm a')"></td>
+    <td class="printed" data-bind="attr: { title: $root.getTimeString(prints.last.date) }, text: moment.unix(prints.last.date).format('YYYY/MM/DD hh:mm a')"></td>
     <td class="size" data-bind="text: formatSize(size)"></td>
 </script>
 
@@ -123,6 +121,7 @@
         <div><div class="internal" data-bind="visible: name != display, marquee: { class: 'marquee-hover' }">{{ _('Internal') }}: <span data-bind="text: name" /></div></div>
     </td>
     <td class="uploaded" data-bind="text: formatTimeAgo(date)"></td>
+    <td class="printed"></td>
     <td class="size" data-bind="text: formatSize(size)"></td>
 </script>
 
@@ -131,6 +130,7 @@
         <div><div data-bind="marquee: { class: 'marquee-hover' }"><i class="icon-folder-open"></i> <span data-bind="text: display"></span></div></div>
         <div><div class="internal" data-bind="visible: name != display, marquee: { class: 'marquee-hover' }">{{ _('Internal') }}: <span data-bind="text: name" /></div></div>
     </td>
-    <td class="uploaded" data-bind="text: formatTimeAgo(date)"></td>
-    <td class="size" data-bind="text: formatSize(size)"></td>
+    <td class="uploaded"></td>
+    <td class="printed"></td>
+    <td class="size"></td>
 </script>

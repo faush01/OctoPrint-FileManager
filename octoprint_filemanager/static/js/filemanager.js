@@ -227,6 +227,34 @@ $(function() {
             return "filemanager_entry_" + md5(data["origin"] + ":" + data["name"]);
         };
 
+        self.getTimeString = function(data) {
+
+            //return formatTimeAgo(date);
+            //return moment.unix(data).format("YYYY/MM/DD hh:mm a");
+
+            let pad = function(n){ return n < 10 ? '0' + n : n; };
+            let sec_ago = moment().diff(moment.unix(data), "seconds");
+            let days = Math.floor(sec_ago / (24*60*60));
+            let daysms = sec_ago % (24*60*60);
+            let hours = Math.floor(daysms / (60*60));
+            let hoursms = sec_ago % (60*60);
+            let minutes = Math.floor(hoursms / (60));
+            let minutesms = sec_ago % (60);
+            let sec = Math.floor(minutesms);
+            let time_ago = "";
+            if(days == 1) time_ago += "1 day ";
+            if (days > 1) time_ago += days + " days ";
+            if(hours == 1) time_ago += "01 hour ";
+            if(hours > 1) time_ago += pad(hours) + " hours ";
+            if(minutes == 1) time_ago += "01 minute ";
+            if(minutes > 1) time_ago += pad(minutes) + " minutes ";
+            if(sec == 1) time_ago += "01 second ";
+            if(sec > 1) time_ago += pad(sec) + " seconds ";            
+            time_ago += "ago";
+            //time_ago += pad(hours) + ":" + pad(minutes) + ":" + pad(sec);
+            return time_ago;
+        };        
+
         self.checkSelectedOrigin = function(origin) {
             var selectedFiles = self.selectedFiles();
             for (var i = 0; i < selectedFiles.length; i++) {
