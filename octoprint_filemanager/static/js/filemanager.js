@@ -130,6 +130,7 @@ $(function() {
             filter = function(data) { return data["type"] && data["type"] == "folder"; };
             return _.filter(self.listHelper.paginatedItems(), filter);
         });
+
         self.filesOnlyList = ko.dependentObservable(function() {
             filter = function(data) { return data["type"] && data["type"] != "folder"; };
             return _.filter(self.listHelper.paginatedItems(), filter);
@@ -174,6 +175,7 @@ $(function() {
             self.currentPath(OctoPrint.files.pathForEntry(data));
             self.listHelper.updateItems(data.children);
         };
+
         self.changeFolderByPath = function(path) {
             var element = self.files.elementByPath(path, { children: self.files.allItems() });
             if (element) {
@@ -190,7 +192,7 @@ $(function() {
             var path = self.currentPath().split("/");
             path.pop();
             self.changeFolderByPath(path.join("/"));
-        }
+        };
 
         self.selectAll = function() {
             var list = self.filesAndFolders();
@@ -201,6 +203,7 @@ $(function() {
                 }
             });
         };
+
         self.deselectAll = function() {
             self.selectedFiles.removeAll();
         };
@@ -211,6 +214,7 @@ $(function() {
             else
                 self.selectedFiles.push(data);
         };
+
         self.isSelected = function(data) {
             return self.selectedFiles.indexOf(data) != -1;
         };
@@ -239,7 +243,7 @@ $(function() {
             else return "none";
 
             return moment.unix(date_val).format('YYYY/MM/DD hh:mm a');
-        }
+        };
 
         self.getTimeAgeString = function(data, dt) {
             if(data == undefined) return "-";
@@ -301,9 +305,11 @@ $(function() {
 
             return selected.length != 0;
         };
+
         self.enableUploadSD = function() {
             return self.loginState.isUser() && self.selectedFiles().length == 1 && self.files.isSdReady() && self.checkSelectedOrigin("local");
         };
+
         self.enableRemove = function() {
             if (!self.loginState.isUser() || self.selectedFiles().length == 0)
                 return false;
@@ -315,6 +321,7 @@ $(function() {
             }
             return true;
         };
+
         self.enableSlicing = function() {
             var files = self.selectedFiles();
             if (files.length != 1)
@@ -322,6 +329,7 @@ $(function() {
 
             return files[0].type == "model" && self.files.enableSlicing(files[0]);
         };
+
         self.enableSelect = function(printAfterSelect) {
             var files = self.selectedFiles();
             if (files.length != 1)
@@ -329,12 +337,15 @@ $(function() {
 
             return files[0].type == "machinecode" && self.files.enableSelect(files[0], printAfterSelect);
         };
+
         self.enableRename = function() {
             return self.loginState.isUser() && self.selectedFiles().length == 1 && self.checkSelectedOrigin("local");
         };
+
         self.enableCopy = function() {
             return self.loginState.isUser() && self.selectedFiles().length > 0 && self.checkSelectedOrigin("local");
         };
+
         self.enablePaste = function() {
             return self.loginState.isUser() && self.actionObject().array.length > 0 && self.checkSelectedOrigin("local");
         };
@@ -360,10 +371,19 @@ $(function() {
 
             OctoPrint.postJson(self.API_FILESURL + "local/" + path, data);
         };
+
         self.remove = function() {
             if (!self.enableRemove())
                 return;
 
+            _.each(self.selectedFiles(), function (element) {
+                if (!self.files.enableRemove(element) || !element.hasOwnProperty("origin"))
+                    return;
+                console.log("removing " + OctoPrint.files.pathForEntry(element));
+                self.files.removeFile(element);
+            });
+
+            /*
             if (self.selectedFiles().length > 1) {
                 var sortedByOrigins = {};
                 _.each(self.selectedFiles(), function (element) {
@@ -385,7 +405,9 @@ $(function() {
             else {
                 self.files.removeFile(self.selectedFiles()[0]);
             }
+            */
         };
+
         self.slice = function() {
             if (!self.enableSlicing())
                 return;
@@ -413,6 +435,7 @@ $(function() {
 
             self.files.showAddFolderDialog();
         };
+
         self.rename = function() {
             if (!self.enableRename())
                 return;
@@ -455,6 +478,7 @@ $(function() {
             self.actionObject(tmp);
             self.selectedFiles([]);
         };
+
         self.cut = function() {
             if (!self.enableRemove() || !self.checkSelectedOrigin("local"))
                 return;
@@ -471,21 +495,24 @@ $(function() {
             self.actionObject(tmp);
             self.selectedFiles([]);
         };
+
         self.paste = function() {
             if (!self.enablePaste())
                 return;
 
             var action = function(data) {
-                if (data.sources.length > 1) {
-                    OctoPrint.postJson(self.API_FILESURL + "local/bulkOperation", data);
+
+                if (data.command == "copy") {
+                    _.each(data.sources, function(source) {
+                        console.log("copying " + source + " to " + data.destinations);
+                        OctoPrint.files.copy("local", source, data.destinations);
+                    });
                 }
-                else {
-                    if (data.command == "copy") {
-                        OctoPrint.files.copy("local", data.sources[0], data.destinations);
-                    }
-                    else if (data.command == "move") {
-                        OctoPrint.files.move("local", data.sources[0], data.destinations);
-                    }
+                else if (data.command == "move") {
+                    _.each(data.sources, function(source) {
+                        console.log("moving " + source + " to " + data.destinations);
+                        OctoPrint.files.move("local", source, data.destinations);
+                    });
                 }
             };
 
@@ -496,14 +523,12 @@ $(function() {
             };
             self.actionObject({ action: undefined, array: [] });
 
-            if (self.selectedFiles().length == 0) {
+            if (self.selectedFiles().length == 1 && 
+                self.selectedFiles()[0].type == "folder") {
+                data.destinations = OctoPrint.files.pathForEntry(self.selectedFiles()[0]);
                 action(data);
             }
-            else if (self.selectedFiles().length == 1) {
-                var dst = self.selectedFiles()[0];
-                if (dst.type == "folder")
-                    data.destinations = OctoPrint.files.pathForEntry(dst);
-
+            else {
                 action(data);
             }
         };
