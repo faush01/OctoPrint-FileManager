@@ -295,6 +295,8 @@ $(function() {
 
         self.enableDownload = function() {
             var selected = self.selectedFiles();
+            if (selected.length > 1)
+                return false;
 
             var data = self.selectedFiles();
             for (var i = 0; i < data.length; i++) {
@@ -358,6 +360,7 @@ $(function() {
                 $.fileDownload(self.files.downloadLink(file), { data: { "cookie": "fileDownload" + index }, cookieName: "fileDownload" + index });
             })
         };
+
         self.uploadSD = function() {
             if (!self.enableUploadSD())
                 return;
@@ -382,30 +385,6 @@ $(function() {
                 console.log("removing " + OctoPrint.files.pathForEntry(element));
                 self.files.removeFile(element);
             });
-
-            /*
-            if (self.selectedFiles().length > 1) {
-                var sortedByOrigins = {};
-                _.each(self.selectedFiles(), function (element) {
-                    if (!self.files.enableRemove(element) || !element.hasOwnProperty("origin"))
-                        return;
-
-                    var origin = element["origin"];
-                    if (!sortedByOrigins.hasOwnProperty(origin))
-                        sortedByOrigins[origin] = [];
-
-                    sortedByOrigins[origin].push(OctoPrint.files.pathForEntry(element));
-                });
-
-                _.each(sortedByOrigins, function (value, key) {
-                    var data = {command: "delete", sources: value};
-                    OctoPrint.postJson(self.API_FILESURL + key + "/bulkOperation", data);
-                });
-            }
-            else {
-                self.files.removeFile(self.selectedFiles()[0]);
-            }
-            */
         };
 
         self.slice = function() {
