@@ -227,13 +227,36 @@ $(function() {
             return "filemanager_entry_" + md5(data["origin"] + ":" + data["name"]);
         };
 
-        self.getTimeString = function(data) {
+        self.getTimeFormatString = function(data, dt) {
+            if(data == undefined) return "-";
+            let date_val = 0;
+            if(dt === 1 && data.date) {
+                date_val = data.date;
+            }
+            else if(dt === 2 && data.prints) {
+                date_val = data.prints.last.date;
+            }
+            else return "none";
+
+            return moment.unix(date_val).format('YYYY/MM/DD hh:mm a');
+        }
+
+        self.getTimeAgeString = function(data, dt) {
+            if(data == undefined) return "-";
+            let date_val = 0;
+            if(dt === 1 && data.date) {
+                date_val = data.date;
+            }
+            else if(dt === 2 && data.prints) {
+                date_val = data.prints.last.date;
+            }
+            else return "none";
 
             //return formatTimeAgo(date);
             //return moment.unix(data).format("YYYY/MM/DD hh:mm a");
 
             let pad = function(n){ return n < 10 ? '0' + n : n; };
-            let sec_ago = moment().diff(moment.unix(data), "seconds");
+            let sec_ago = moment().diff(moment.unix(date_val), "seconds");
             let days = Math.floor(sec_ago / (24*60*60));
             let daysms = sec_ago % (24*60*60);
             let hours = Math.floor(daysms / (60*60));

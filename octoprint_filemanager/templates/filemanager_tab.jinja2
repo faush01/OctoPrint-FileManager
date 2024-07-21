@@ -89,7 +89,7 @@
             </thead>        
             <tbody>
                 <!-- ko if: currentPath() != "" -->
-                <tr><td  colspan="4" data-bind="click: $root.navigateUp"><i class="icon-arrow-left"></i> {{  _('Back') }}</td></tr>
+                <tr><td colspan="4" data-bind="click: $root.navigateUp"><i class="icon-arrow-left"></i> {{  _('Back') }}</td></tr>
                 <!-- /ko -->
 
                 <!-- ko foreach: $root.filesAndFolders -->
@@ -110,8 +110,8 @@
         <div><div data-bind="marquee: { class: 'marquee-hover' }"><!-- ko text: display --><!-- /ko --></div></div>
         <div><div class="internal" data-bind="visible: name != display, marquee: { class: 'marquee-hover' }">{{ _('Internal') }}: <span data-bind="text: name" /></div></div>
     </td>
-    <td class="uploaded" data-bind="attr: { title: $root.getTimeString(date) }, text: moment.unix(date).format('YYYY/MM/DD hh:mm a')"></td>
-    <td class="printed" data-bind="attr: { title: $root.getTimeString(prints.last.date) }, text: moment.unix(prints.last.date).format('YYYY/MM/DD hh:mm a')"></td>
+    <td class="uploaded" data-bind="attr: { title: $root.getTimeAgeString($data, 1) }, text: $root.getTimeFormatString($data, 1)"></td>
+    <td class="printed" data-bind="attr: { title: $root.getTimeAgeString($data, 2) }, text: $root.getTimeFormatString($data, 2)"></td>
     <td class="size" data-bind="text: formatSize(size)"></td>
 </script>
 
